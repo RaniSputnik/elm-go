@@ -4,6 +4,7 @@ import Board exposing (Board)
 import Browser
 import Html exposing (Html, div, pre, table, tbody, td, text, tr)
 import Http
+import Stone exposing (Stone(..))
 
 
 
@@ -73,14 +74,35 @@ viewBoard : Board -> Html Msg
 viewBoard board =
     let
         cells =
-            List.repeat (Board.size board) 0
+            List.range 0 (Board.size board - 1)
     in
     table []
         [ tbody []
-            (List.map (\_ -> tr [] (List.map (\_ -> viewBoardCell) cells)) cells)
+            (List.map (\y -> tr [] (List.map (\x -> viewBoardCell x y board) cells)) cells)
         ]
 
 
-viewBoardCell : Html Msg
-viewBoardCell =
-    td [] [ pre [] [ text "  +  " ] ]
+viewBoardCell : Int -> Int -> Board -> Html Msg
+viewBoardCell x y board =
+    let
+        empty =
+            "  +  "
+
+        black =
+            "  O  "
+
+        white =
+            "  X  "
+
+        theStone =
+            case Board.pos x y board of
+                Nothing ->
+                    empty
+
+                Just Black ->
+                    black
+
+                Just White ->
+                    white
+    in
+    td [] [ pre [] [ text theStone ] ]
