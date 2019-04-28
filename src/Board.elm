@@ -1,6 +1,8 @@
 module Board exposing
     ( Board
+    , IllegalMove
     , beginner
+    , explain
     , normal
     , play
     , pos
@@ -15,6 +17,17 @@ import Player exposing (Player(..))
 
 type Board
     = Board Int (Array (Maybe Player))
+
+
+type IllegalMove
+    = PositionOccupied Int Int
+
+
+explain : IllegalMove -> String
+explain err =
+    case err of
+        PositionOccupied x y ->
+            "A stone has already been placed at position: (" ++ String.fromInt x ++ "," ++ String.fromInt y ++ ")"
 
 
 normal : Board
@@ -74,7 +87,7 @@ turn board =
         Black
 
 
-play : Int -> Int -> Board -> Board
+play : Int -> Int -> Board -> Result IllegalMove Board
 play x y board =
     let
         nextPlayer =
@@ -83,10 +96,18 @@ play x y board =
         playedAt =
             indexOf x y board
 
+        currentBoardState =
+            pos x y board
+
         nextBoardState =
             Array.set playedAt (Just nextPlayer) (positions board)
     in
-    Board (size board) nextBoardState
+    case currentBoardState of
+        Nothing ->
+            Ok (Board (size board) nextBoardState)
+
+        Just _ ->
+            Err (PositionOccupied x y)
 
 
 

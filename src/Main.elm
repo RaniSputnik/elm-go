@@ -1,6 +1,6 @@
 module Main exposing (Model, Msg(..), init, main, subscriptions, update, view)
 
-import Board exposing (Board)
+import Board exposing (Board, IllegalMove)
 import Browser
 import Html exposing (Html, div, pre, table, tbody, td, text, tr)
 import Html.Events exposing (onClick)
@@ -27,12 +27,14 @@ main =
 
 type alias Model =
     { board : Board
+    , error : Maybe IllegalMove
     }
 
 
 init : () -> ( Model, Cmd Msg )
 init _ =
     ( { board = Board.beginner
+      , error = Nothing
       }
     , Cmd.none
     )
@@ -54,7 +56,16 @@ update msg model =
             ( model, Cmd.none )
 
         Play x y ->
-            ( { model | board = Board.play x y model.board }, Cmd.none )
+            let
+                playAttempt =
+                    Board.play x y model.board
+            in
+            case playAttempt of
+                Ok nextBoardState ->
+                    ( { model | board = nextBoardState, error = Nothing }, Cmd.none )
+
+                Err mv ->
+                    ( { model | error = Just mv }, Cmd.none )
 
 
 
@@ -75,6 +86,7 @@ view model =
     div []
         [ text ("Next move: " ++ Player.name (Board.turn model.board))
         , viewBoard model.board
+        , viewError model.error
         ]
 
 
@@ -114,3 +126,13 @@ viewBoardCell x y board =
                     white
     in
     td [ onClick (Play x y) ] [ pre [] [ text thePlayer ] ]
+
+
+viewError : Maybe IllegalMove -> Html Msg
+viewError maybeErr =
+    case maybeErr of
+        Nothing ->
+            text ""
+
+        Just err ->
+            text (Board.explain err)
