@@ -2,7 +2,8 @@ module Main exposing (Model, Msg(..), init, main, subscriptions, update, view)
 
 import Board exposing (Board, IllegalMove)
 import Browser
-import Html exposing (Html, div, pre, table, tbody, td, text, tr)
+import Html exposing (Html, div, span, table, tbody, td, text, tr)
+import Html.Attributes exposing (class)
 import Html.Events exposing (onClick)
 import Http
 import Player exposing (Player(..))
@@ -96,7 +97,7 @@ viewBoard board =
         cells =
             List.range 0 (Board.size board - 1)
     in
-    table []
+    table [ class "ok" ]
         [ tbody []
             (List.map (\y -> tr [] (List.map (\x -> viewBoardCell x y board) cells)) cells)
         ]
@@ -105,27 +106,18 @@ viewBoard board =
 viewBoardCell : Int -> Int -> Board -> Html Msg
 viewBoardCell x y board =
     let
-        empty =
-            "  +  "
-
-        black =
-            "  O  "
-
-        white =
-            "  X  "
-
         thePlayer =
             case Board.pos x y board of
                 Nothing ->
-                    empty
+                    ""
 
                 Just Black ->
-                    black
+                    "b"
 
                 Just White ->
-                    white
+                    "w"
     in
-    td [ onClick (Play x y) ] [ pre [] [ text thePlayer ] ]
+    td [ onClick (Play x y) ] [ div [ class "s", class thePlayer ] [] ]
 
 
 viewError : Maybe IllegalMove -> Html Msg
