@@ -1,7 +1,8 @@
-module Main exposing (Model(..), Msg(..), init, main, subscriptions, update, view)
+module Main exposing (Model, Msg(..), init, main, subscriptions, update, view)
 
+import Board exposing (Board)
 import Browser
-import Html exposing (Html, pre, text)
+import Html exposing (Html, div, pre, table, tbody, td, text, tr)
 import Http
 
 
@@ -22,19 +23,16 @@ main =
 -- MODEL
 
 
-type Model
-    = Failure
-    | Loading
-    | Success String
+type alias Model =
+    { board : Board
+    }
 
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( Loading
-    , Http.get
-        { url = "https://elm-lang.org/assets/public-opinion.txt"
-        , expect = Http.expectString GotText
-        }
+    ( { board = Board.beginner
+      }
+    , Cmd.none
     )
 
 
@@ -43,19 +41,14 @@ init _ =
 
 
 type Msg
-    = GotText (Result Http.Error String)
+    = Noop
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        GotText result ->
-            case result of
-                Ok fullText ->
-                    ( Success fullText, Cmd.none )
-
-                Err _ ->
-                    ( Failure, Cmd.none )
+        Noop ->
+            ( model, Cmd.none )
 
 
 
@@ -73,12 +66,21 @@ subscriptions model =
 
 view : Model -> Html Msg
 view model =
-    case model of
-        Failure ->
-            text "I was unable to load your book."
+    viewBoard model.board
 
-        Loading ->
-            text "Loading..."
 
-        Success fullText ->
-            pre [] [ text fullText ]
+viewBoard : Board -> Html Msg
+viewBoard board =
+    let
+        cells =
+            List.repeat (Board.size board) 0
+    in
+    table []
+        [ tbody []
+            (List.map (\_ -> tr [] (List.map (\_ -> viewBoardCell) cells)) cells)
+        ]
+
+
+viewBoardCell : Html Msg
+viewBoardCell =
+    td [] [ pre [] [ text "  +  " ] ]
