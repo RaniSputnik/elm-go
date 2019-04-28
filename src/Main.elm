@@ -4,7 +4,7 @@ import Board exposing (Board)
 import Browser
 import Html exposing (Html, div, pre, table, tbody, td, text, tr)
 import Http
-import Stone exposing (Stone(..))
+import Player exposing (Player(..))
 
 
 
@@ -67,7 +67,10 @@ subscriptions model =
 
 view : Model -> Html Msg
 view model =
-    viewBoard model.board
+    div []
+        [ text ("Next move: " ++ Player.name (Board.turn model.board))
+        , viewBoard model.board
+        ]
 
 
 viewBoard : Board -> Html Msg
@@ -94,7 +97,7 @@ viewBoardCell x y board =
         white =
             "  X  "
 
-        theStone =
+        thePlayer =
             case Board.pos x y board of
                 Nothing ->
                     empty
@@ -105,4 +108,4 @@ viewBoardCell x y board =
                 Just White ->
                     white
     in
-    td [] [ pre [] [ text theStone ] ]
+    td [] [ pre [] [ text thePlayer ] ]

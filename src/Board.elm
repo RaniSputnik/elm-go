@@ -5,14 +5,15 @@ module Board exposing
     , pos
     , size
     , small
+    , turn
     )
 
 import Array exposing (Array)
-import Stone exposing (Stone(..))
+import Player exposing (Player(..))
 
 
 type Board
-    = Board Int (Array (Maybe Stone))
+    = Board Int (Array (Maybe Player))
 
 
 normal : Board
@@ -37,15 +38,39 @@ size board =
             x
 
 
-pos : Int -> Int -> Board -> Maybe Stone
+pos : Int -> Int -> Board -> Maybe Player
 pos x y board =
     let
         i =
             indexOf x y board
     in
-    case board of
-        Board _ positions ->
-            Maybe.withDefault Nothing (Array.get i positions)
+    Maybe.withDefault Nothing (Array.get i (positions board))
+
+
+turn : Board -> Player
+turn board =
+    let
+        hasStone =
+            \p ->
+                case p of
+                    Nothing ->
+                        False
+
+                    Just _ ->
+                        True
+
+        numberOfStones =
+            Array.length (Array.filter hasStone (positions board))
+
+        isEven =
+            \x ->
+                modBy 2 x == 0
+    in
+    if isEven numberOfStones then
+        White
+
+    else
+        Black
 
 
 
@@ -55,6 +80,13 @@ pos x y board =
 new : Int -> Board
 new x =
     Board x (Array.repeat (x * x) Nothing)
+
+
+positions : Board -> Array (Maybe Player)
+positions board =
+    case board of
+        Board _ p ->
+            p
 
 
 indexOf : Int -> Int -> Board -> Int
