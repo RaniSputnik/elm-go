@@ -2,6 +2,7 @@ module Board exposing
     ( Board
     , beginner
     , normal
+    , play
     , pos
     , size
     , small
@@ -71,6 +72,21 @@ turn board =
 
     else
         Black
+
+
+play : Int -> Int -> Board -> Board
+play x y board =
+    let
+        nextPlayer =
+            turn board
+
+        playedAt =
+            indexOf x y board
+
+        nextBoardState =
+            Array.set playedAt (Just nextPlayer) (positions board)
+    in
+    Board (size board) nextBoardState
 
 
 

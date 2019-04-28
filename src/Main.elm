@@ -3,6 +3,7 @@ module Main exposing (Model, Msg(..), init, main, subscriptions, update, view)
 import Board exposing (Board)
 import Browser
 import Html exposing (Html, div, pre, table, tbody, td, text, tr)
+import Html.Events exposing (onClick)
 import Http
 import Player exposing (Player(..))
 
@@ -43,6 +44,7 @@ init _ =
 
 type Msg
     = Noop
+    | Play Int Int
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -50,6 +52,9 @@ update msg model =
     case msg of
         Noop ->
             ( model, Cmd.none )
+
+        Play x y ->
+            ( { model | board = Board.play x y model.board }, Cmd.none )
 
 
 
@@ -108,4 +113,4 @@ viewBoardCell x y board =
                 Just White ->
                     white
     in
-    td [] [ pre [] [ text thePlayer ] ]
+    td [ onClick (Play x y) ] [ pre [] [ text thePlayer ] ]
